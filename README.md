@@ -1,8 +1,8 @@
-# PPP Core application.
+# PPP libmodule-Python application.
 
-[![Build Status](https://scrutinizer-ci.com/g/ProjetPP/PPP-Core/badges/build.png?b=master)](https://scrutinizer-ci.com/g/ProjetPP/PPP-Core/build-status/master)
-[![Code Coverage](https://scrutinizer-ci.com/g/ProjetPP/PPP-Core/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/ProjetPP/PPP-Core/?branch=master)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/ProjetPP/PPP-Core/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/ProjetPP/PPP-Core/?branch=master)
+[![Build Status](https://scrutinizer-ci.com/g/ProjetPP/PPP-libmodule-Python/badges/build.png?b=master)](https://scrutinizer-ci.com/g/ProjetPP/PPP-libmodule-Python/build-status/master)
+[![Code Coverage](https://scrutinizer-ci.com/g/ProjetPP/PPP-libmodule-Python/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/ProjetPP/PPP-libmodule-Python/?branch=master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/ProjetPP/PPP-libmodule-Python/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/ProjetPP/PPP-libmodule-Python/?branch=master)
 
 
 # How to install
@@ -10,41 +10,30 @@
 With a recent version of pip:
 
 ```
-pip3 install git+https://github.com/ProjetPP/PPP-Core.git
+pip3 install git+https://github.com/ProjetPP/PPP-libmodule-Python.git
 ```
 
 With an older one:
 
 ```
-git clone https://github.com/ProjetPP/PPP-Core.git
-cd PPP-Core
+git clone https://github.com/ProjetPP/PPP-libmodule-Python.git
+cd PPP-libmodule-Python
 python3 setup.py install
 ```
 
 Use the `--user` option if you want to install it only for the current user.
 
-# How to run the router (for system administrators)
-
-You can write your `config.json` file in a quite straightforward way, using
-the file `example_config.json` as an example.
-
-Then, just run:
+# How to use the HTTP library
 
 ```
-PPP_CORE_CONFIG=/path/to/json/config.json gunicorn ppp_core:app
-```
-
-# How to use the HTTP library (for module developpers)
-
-```
-from ppp_core import RequestHandler
+from ppp_libmodule import HttpRequestHandler
 
 def app(environ, start_response):
     """Function called by the WSGI server."""
-    return HttpRequestHandler(environ, start_response, Router).dispatch()
+    return HttpRequestHandler(environ, start_response, RequestHandler).dispatch()
 ```
 
-Where `Router` is a class of your own that implements the following
+Where `RequestHandler` is a class of your own that implements the following
 interface:
 
 * `__init__(self, request)`, where `request` is the content of the
@@ -57,10 +46,10 @@ to learn more about what those objects are.
 
 `answer` may also raise one of those exceptions:
 
-* `ppp_core.exceptions.ClientError`, which will tell the client their request
+* `ppp_libmodule.exceptions.ClientError`, which will tell the client their request
   has a problem. The first argument to the exception must contain an explicit
   message
-* `ppp_core.exception.InvalidConfig`, raised when the administrator of your
+* `ppp_libmodule.exception.InvalidConfig`, raised when the administrator of your
   router did not configure it well.
   Displays the error message in the console and exits
 

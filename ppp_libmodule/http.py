@@ -7,7 +7,6 @@ import logging
 from ppp_datamodel.exceptions import AttributeNotProvided
 from ppp_datamodel.communication import Request
 
-from .router import Router
 from .config import Config
 from .exceptions import ClientError, BadGateway, InvalidConfig
 
@@ -64,11 +63,11 @@ class HttpRequestHandler:
                                  )
 
     def on_client_error(self, exc):
-        """Handler for any error in the request detected by the core."""
+        """Handler for any error in the request detected by the module."""
         return self.on_bad_request(exc.args[0])
 
     def on_internal_error(self): # pragma: no cover
-        """Returns a basic response when the core crashed"""
+        """Returns a basic response when the module crashed"""
         return self.make_response('500 Internal Server Error',
                                   'text/plain',
                                   'Internal server error. Sorry :/'
@@ -92,7 +91,7 @@ class HttpRequestHandler:
                                  )
 
     def on_post(self):
-        """Extracts the request, feeds the core, and returns the response."""
+        """Extracts the request, feeds the module, and returns the response."""
         request = self.environ['wsgi.input']
         try:
             return self.process_request(request)
@@ -119,7 +118,3 @@ class HttpRequestHandler:
         else:
             return self.on_bad_method()
 
-def app(environ, start_response):
-    """Function called by the WSGI server."""
-    r = HttpRequestHandler(environ, start_response, Router).dispatch()
-    return r

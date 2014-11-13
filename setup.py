@@ -3,11 +3,10 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='ppp_core',
-    version='0.5.3',
-    description='Core/router of the PPP framework. Also contains a library ' \
-                'usable by module developpers to handle the query API.',
-    url='https://github.com/ProjetPP/PPP-Core',
+    name='ppp_libmodule',
+    version='0.6',
+    description='Library for writing Python modules for the PPP.',
+    url='https://github.com/ProjetPP/PPP-libmodule-Python',
     author='Valentin Lorentz',
     author_email='valentin.lorentz+ppp@ens-lyon.org',
     license='MIT',
@@ -15,7 +14,6 @@ setup(
         'Environment :: No Input/Output (Daemon)',
         'Development Status :: 1 - Planning',
         'Intended Audience :: Developers',
-        'Intended Audience :: System Administrators',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
@@ -26,11 +24,10 @@ setup(
         'Topic :: Software Development :: Libraries',
     ],
     install_requires=[
-        'requests',
         'ppp_datamodel>=0.5.2,<0.6',
     ],
     packages=[
-        'ppp_core',
+        'ppp_libmodule',
     ],
 )
 

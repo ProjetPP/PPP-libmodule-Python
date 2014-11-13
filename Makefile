@@ -8,9 +8,6 @@ install:
 localinstall:
 	$(PYTHON) setup.py install --user
 
-run:
-	gunicorn ppp_core:app
-
 tests:
 	$(PYTHON) run_tests.py
 

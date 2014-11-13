@@ -1,1 +1,1 @@
-pylint --rcfile=.pylintrc ppp_core
+pylint --rcfile=.pylintrc ppp_libmodule
