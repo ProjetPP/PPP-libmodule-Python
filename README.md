@@ -72,3 +72,11 @@ There are two things to implement:
 * The configuration parser: it simply takes the deserialized data
   from the file, and sets attributes to the Config object, so your
   module can access it later.
+
+This way, the path to the config file can be passed to your module
+by invoking gunicorn this way:
+
+```
+export PPP_MYMODULE_CONFIG="/path/to/config/file.json"
+gunicorn my_module:app
+```
