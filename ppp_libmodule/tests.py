@@ -26,7 +26,7 @@ def PPPTestCase(app):
             if self.config_var or self.config is not None:
                 assert self.config_var and self.config is not None
                 self.config_file.close()
-                del os.environ[self.config.var]
+                del os.environ[self.config_var]
                 del self.config_file
             super(_PPPTestCase, self).tearDown()
 
