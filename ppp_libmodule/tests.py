@@ -1,4 +1,4 @@
-"""Test framework for running tests of the PPP core."""
+"""Test framework for running tests of PPP modules."""
 
 __all__ = ['PPPTestCase']
 
@@ -9,26 +9,25 @@ from webtest import TestApp
 from unittest import TestCase
 from ppp_datamodel.communication import Request, Response
 
-base_config = """
-{
-    "debug": true,
-    "modules": []
-}
-"""
-
 def PPPTestCase(app):
     class _PPPTestCase(TestCase):
+        config_var = None
+        config = None
         def setUp(self):
             super(_PPPTestCase, self).setUp()
             self.app = TestApp(app)
-            self.config_file = tempfile.NamedTemporaryFile('w+')
-            os.environ['PPP_CORE_CONFIG'] = self.config_file.name
-            self.config_file.write(base_config)
-            self.config_file.seek(0)
+            if self.config_var or self.config is not None:
+                assert self.config_var and self.config is not None
+                self.config_file = tempfile.NamedTemporaryFile('w+')
+                os.environ[self.config_var] = self.config_file.name
+                self.config_file.write(self.config)
+                self.config_file.seek(0)
         def tearDown(self):
-            self.config_file.close()
-            del os.environ['PPP_CORE_CONFIG']
-            del self.config_file
+            if self.config_var or self.config is not None:
+                assert self.config_var and self.config is not None
+                self.config_file.close()
+                del os.environ[self.config_var]
+                del self.config_file
             super(_PPPTestCase, self).tearDown()
 
         def request(self, obj):
