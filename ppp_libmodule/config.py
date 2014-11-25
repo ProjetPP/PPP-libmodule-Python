@@ -6,17 +6,6 @@ import logging
 from collections import namedtuple
 from .exceptions import InvalidConfig
 
-class Module(namedtuple('_Module', 'name url coefficient')):
-    """Represents a modules of the core with its name, URL, and a
-    coefficient applied to it self-computed pertinence."""
-    def __new__(cls, name, url, coefficient=1, **kwargs):
-        if kwargs: # pragma: no cover
-            logging.warning('Ignored arguments to module config: %r' % kwargs)
-        return super(Module, cls).__new__(cls,
-                                          name=name,
-                                          url=url,
-                                          coefficient=coefficient)
-
 
 class Config:
     __slots__ = ('debug',)

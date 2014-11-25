@@ -1,4 +1,4 @@
-"""Exceptions of the PPP Core."""
+"""Exceptions of the PPP modules."""
 
 class ClientError(Exception):
     """Exception raised by the module for showing an error to the
