@@ -111,10 +111,10 @@ class HttpRequestHandler:
 
     def dispatch(self):
         """Handles dispatching of the request."""
-        if self.environ['REQUEST_METHOD'] == 'POST':
-            return self.on_post()
-        elif self.environ['REQUEST_METHOD'] == 'OPTIONS':
-            return self.on_options()
+        method_name = 'on_' + self.environ['REQUEST_METHOD'].lower()
+        method = getattr(self, method_name, None)
+        if method:
+            return method()
         else:
             return self.on_bad_method()
 
