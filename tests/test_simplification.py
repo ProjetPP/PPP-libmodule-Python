@@ -8,10 +8,13 @@ from ppp_libmodule.simplification import simplify
 
 
 class SimplificationTestCase(unittest.TestCase):
+    def testList(self):
+        self.assertEqual(simplify(List([R('a')])), R('a'))
+        self.assertEqual(simplify(List([List([R('a')])])), R('a'))
     def testUnionTrivial(self):
         self.assertEqual(simplify(Union([])), List([]))
         self.assertEqual(simplify(Union([List([R('a')])])),
-                List([R('a')]))
+                R('a'))
     def testUnionResourceLists(self):
         t = Union([List([R('a'), R('b')]), List([R('c')])])
         t = simplify(t)
@@ -27,16 +30,16 @@ class SimplificationTestCase(unittest.TestCase):
 
     def testIntersectionTrivial(self):
         self.assertEqual(simplify(Intersection([])), Intersection([]))
-        self.assertEqual(simplify(Intersection([List([R('a')])])),
-                List([R('a')]))
+        self.assertEqual(simplify(Intersection([R('a')])),
+                R('a'))
     def testIntersectionResourceLists(self):
         t = Intersection([List([R('a'), R('b')]), List([R('c'), R('a')])])
         t = simplify(t)
-        self.assertEqual(t, List([R('a')]))
+        self.assertEqual(t, R('a'))
     def testIntersectionMixed(self):
         t = Intersection([List([R('a'), R('b')]), List([R('c'), R('a')]),
                          T(M(), M(), M())])
         t = simplify(t)
         self.assertIsInstance(t, Intersection)
         self.assertEqual(t.list[0], T(M(), M(), M()))
-        self.assertEqual(t.list[1], List([R('a')]))
+        self.assertEqual(t.list[1], R('a'))

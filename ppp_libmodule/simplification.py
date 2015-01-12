@@ -20,9 +20,10 @@ def simplify_union(tree):
     elif len(tree.list) == 1:
         return tree.list[0]
 
-    (lists, non_lists) = partition(lambda x:isinstance(x, List), tree.list)
+    (lists, non_lists) = partition(lambda x:isinstance(x, (List, Resource)),
+                                   tree.list)
     # Make union of lists
-    lists = map(operator.attrgetter('list'), lists)
+    lists = [x.list if isinstance(x, List) else [x] for x in lists]
     lists = list(set(itertools.chain(*lists)))
 
     non_lists = list(non_lists)
@@ -42,7 +43,7 @@ def simplify_intersection(tree):
 
     (lists, non_lists) = partition(lambda x:isinstance(x, List), tree.list)
     # Make intersection of lists
-    lists = list(map(set, map(operator.attrgetter('list'), lists)))
+    lists = list(map(set, map(operator.attrgetter('list'), lists))) or [set()]
     lists = list(lists[0].intersection(*lists[1:]))
 
     non_lists = list(non_lists)
@@ -53,10 +54,16 @@ def simplify_intersection(tree):
     else: # If there are only lists
         return List(lists)
 
+def simplify_list(tree):
+    if len(tree.list) == 1:
+        return tree.list[0]
+    else:
+        return tree
 
 predicates = {
         Union: simplify_union,
         Intersection: simplify_intersection,
+        List: simplify_list,
         }
 
 def predicate(tree):
@@ -66,4 +73,8 @@ def predicate(tree):
     return tree
 
 def simplify(tree):
-    return tree.traverse(predicate)
+    old_tree = None
+    while old_tree != tree:
+        old_tree = tree
+        tree = tree.traverse(predicate)
+    return tree
