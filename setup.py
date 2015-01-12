@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ppp_libmodule',
-    version='0.7.3',
+    version='0.7.4',
     description='Library for writing Python modules for the PPP.',
     url='https://github.com/ProjetPP/PPP-libmodule-Python',
     author='Valentin Lorentz',

@@ -10,7 +10,6 @@ from ppp_libmodule.simplification import simplify
 class SimplificationTestCase(unittest.TestCase):
     def testList(self):
         self.assertEqual(simplify(List([R('a')])), R('a'))
-        self.assertEqual(simplify(List([List([R('a')])])), R('a'))
     def testUnionTrivial(self):
         self.assertEqual(simplify(Union([])), List([]))
         self.assertEqual(simplify(Union([List([R('a')])])),
@@ -36,6 +35,9 @@ class SimplificationTestCase(unittest.TestCase):
         t = Intersection([List([R('a'), R('b')]), List([R('c'), R('a')])])
         t = simplify(t)
         self.assertEqual(t, R('a'))
+        t = Intersection([List([R('a'), R('b'), R('c')]), List([R('c'), R('a')])])
+        t = simplify(t)
+        self.assertIn(t, (List([R('a'), R('c')]), List([R('c'), R('a')])))
     def testIntersectionMixed(self):
         t = Intersection([List([R('a'), R('b')]), List([R('c'), R('a')]),
                          T(M(), M(), M())])

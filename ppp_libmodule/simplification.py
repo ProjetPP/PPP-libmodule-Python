@@ -31,8 +31,10 @@ def simplify_union(tree):
         all_ = non_lists
         all_.append(List(lists))
         return Union(all_)
+    elif len(non_lists) == 1:
+        return non_lists
     else:
-        return List(non_lists)
+        return Union(non_lists)
 
 def simplify_intersection(tree):
     # Trivial cases
@@ -53,8 +55,10 @@ def simplify_intersection(tree):
         all_ = non_lists
         all_.append(simplify_list(List(lists)))
         return Intersection(all_)
+    elif len(non_lists) == 1:
+        return non_lists
     else:
-        return List(non_lists)
+        return Intersection(non_lists)
 
 def simplify_list(tree):
     if len(tree.list) == 1:
