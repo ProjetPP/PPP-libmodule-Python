@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ppp_libmodule',
-    version='0.7.4',
+    version='0.7.5',
     description='Library for writing Python modules for the PPP.',
     url='https://github.com/ProjetPP/PPP-libmodule-Python',
     author='Valentin Lorentz',
@@ -24,7 +24,7 @@ setup(
         'Topic :: Software Development :: Libraries',
     ],
     install_requires=[
-        'ppp_datamodel>=0.5.22,<0.6',
+        'ppp_datamodel>=0.6,<0.7',
     ],
     packages=[
         'ppp_libmodule',

@@ -3,6 +3,7 @@ import unittest
 from ppp_datamodel.nodes import Triple as T
 from ppp_datamodel.nodes import Missing as M
 from ppp_datamodel.nodes import Resource as R
+from ppp_datamodel.nodes import JsonldResource as JR
 from ppp_datamodel.nodes.list_operators import *
 from ppp_libmodule.simplification import simplify
 
@@ -45,3 +46,15 @@ class SimplificationTestCase(unittest.TestCase):
         self.assertIsInstance(t, Intersection)
         self.assertEqual(t.list[0], T(M(), M(), M()))
         self.assertEqual(t.list[1], R('a'))
+    def testIntersectionJsonld(self):
+        t = Intersection([
+            List([
+                JR('a', graph={'@id': 'foo'}),
+                JR('b', graph={'@id': 'bar'})
+                ]),
+            List([
+                JR('b', graph={'@id': 'baz'}),
+                JR('d', graph={'@id': 'foo'})
+                ])])
+        t = simplify(t)
+        self.assertEqual(t, JR('e', graph={'@id': 'foo'}))

@@ -46,9 +46,19 @@ def simplify_intersection(tree):
     (a, b) = partition(lambda x:isinstance(x, (List, Resource)), tree.list)
     (lists, non_lists) = partition(lambda x:isinstance(x, (List, Resource)),
                                    tree.list)
+    lists = list(lists)
     # Make intersection of lists
-    lists = [set(x.list) if isinstance(x, List) else {x} for x in lists] or [set()]
-    lists = list(lists[0].intersection(*lists[1:]))
+    try:
+        # Efficient algorithm if everything is hashable
+        lists = [set(x.list) if isinstance(x, List) else {x} for x in lists] or [set()]
+        lists = list(lists[0].intersection(*lists[1:]))
+    except TypeError:
+        # If there is a non-hashable value, fallback to a less efficient algorithm
+        lists = [x.list if isinstance(x, List) else [x] for x in lists] or [[]]
+        intersected_lists = lists[0].copy()
+        for l in lists[1:]:
+            intersected_lists = [x for x in intersected_lists if x in l]
+        lists = intersected_lists
 
     non_lists = list(non_lists)
     if lists:
