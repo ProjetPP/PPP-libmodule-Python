@@ -55,7 +55,7 @@ def simplify_intersection(tree):
     except TypeError:
         # If there is a non-hashable value, fallback to a less efficient algorithm
         lists = [x.list if isinstance(x, List) else [x] for x in lists] or [[]]
-        intersected_lists = lists[0].copy()
+        intersected_lists = list(lists[0])
         for l in lists[1:]:
             intersected_lists = [x for x in intersected_lists if x in l]
         lists = intersected_lists
