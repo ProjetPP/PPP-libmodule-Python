@@ -1,61 +1,60 @@
+import json
 import asyncore
 
 from .http import HttpRequestHandler
+from ppp_datamodel import Request
 
 class Handler(asyncore.dispatcher_with_send):
     def __init__(self, class_, sock):
         super().__init__(sock)
         self._class = class_
-        self.in_buffer = b''
-        self.out_buffer = None
+        self._in_buffer = b''
+        self._out_buffer = None
         self.headers = None
         self.content_length = None
         self.generator = None
 
     def start_response(self, status, headers):
         """Function passed to the HttpRequestHandler."""
-        assert self.out_buffer is None, \
+        assert self._out_buffer is None, \
                 'start_response called after data was returned.'
         pred = ''.join(['\r\n%s:%s' % x for x in headers])
-        self.out_buffer = (status+headers).encode()
+        self._out_buffer = (status+headers).encode()
 
     def handle_read(self):
-        self.in_buffer += self.recv(8192)
-        if len(self.in_buffer) >= 2**23:
+        self._in_buffer += self.recv(8192)
+        if len(self._in_buffer) >= 2**23:
             # More than 8MB headers, seriously?
             self.send('413 Request Entity Too Large\r\n')
-        if not self.headers and b'\r\n\r\n' in self.in_buffer:
-            (headers_buff, self.in_buffer) = self.in_buffer.split(b'\r\n\r\n')
+            self.close()
+        if not self.headers and b'\r\n\r\n' in self._in_buffer:
+            (headers_buff, self._in_buffer) = self._in_buffer.split(b'\r\n\r\n')
             self.on_headers_end(headers_buff.decode().split('\r\n'))
-        elif self.headers and len(self.in_buffer) >= self.content_length:
-            self.on_content_end(self.in_buffer)
-            self.in_buffer = None
+        if self.headers and len(self._in_buffer) >= self.content_length:
+            content = self._in_buffer
+            self._in_buffer = None
+            self.on_content_end(content)
 
     def on_headers_end(self, headers):
         self.method = headers[0].split(' ', 1)[1]
         self.headers = dict(map(lambda x:x.split(': ', 1), headers[1:]))
         self.content_length = int(self.headers.get('Content-Length', '0'))
+        if not self.content_length:
+            self.on_content_end(None)
 
     def on_content_end(self, content):
-        request = Request.from_json(content.decode())
-        print(repr(request))
-        self.generator = iter(self._class(request).answer())
+        if content:
+            request = Request.from_json(content.decode())
+            r = json.dumps(list(self._class(request).answer())).encode()
+            self.send(('HTTP/1.0 200 OK\r\nContent-Length: %d\r\n\r\n' % len(r)).encode())
+            self.send(r)
+        else:
+            self.send(b'HTTP/1.0 400 Bad Request\r\n\r\n')
+        self.close()
 
-    def handle_write(self):
-        print(self.generator)
-        print(self.out_buffer)
-        if not self.generator and not self.out_buffer:
-            return
-        if not self.out_buffer:
-            try:
-                item = next(self.generator)
-            except StopIteration:
-                self.generator = None
-            else:
-                self.out_buffer += item.as_json().encode()
-
-        sent = self.send(self.out_buffer)
-        self.out_buffer = self.out_buffer[sent:]
+    def handle_close(self):
+        print('connection closed.')
+        super().handle_close()
 
 class Router(asyncore.dispatcher):
     def __init__(self, host, port, class_):
