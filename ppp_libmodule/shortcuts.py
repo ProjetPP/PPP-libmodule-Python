@@ -16,7 +16,7 @@ def traverse_until_fixpoint(predicate, tree):
     return tree
 
 
-def answer(request, tree, measures, module_name):
+def build_answer(request, tree, measures, module_name):
     trace = request.trace + [TraceItem(module_name, tree, measures)]
     return Response(request.language, tree, measures, trace)
 
