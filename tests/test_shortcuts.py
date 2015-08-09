@@ -5,6 +5,7 @@ from ppp_libmodule import shortcuts
 from ppp_datamodel.nodes import Triple as T
 from ppp_datamodel.nodes import Missing as M
 from ppp_datamodel.nodes import Missing as R
+from ppp_datamodel.nodes import List as L
 from ppp_datamodel.communication import Response, TraceItem
 
 def predicate(node):
@@ -13,6 +14,8 @@ def predicate(node):
     elif node == R('foo'):
         return R('bar')
     elif node == M():
+        return node
+    elif node == L([]):
         return node
     else:
         assert False, node
