@@ -33,6 +33,7 @@ def PPPTestCase(app):
                 os.environ[self.config_var] = self.config_file.name
                 self.config_file.write(self.config)
                 self.config_file.seek(0)
+
         def tearDown(self):
             if self.config_var or self.config is not None:
                 assert self.config_var and self.config is not None
@@ -46,27 +47,42 @@ def PPPTestCase(app):
             j = self.app.post_json('/', obj).json
             """Make a request and return the answers."""
             return list(map(Response.from_dict, j))
+
         @arg_to_dict
-        def assertResponse(self, request, response):
-            """Makes a request and asserts the response is the expected one."""
-            self.assertEqual(self.request(request), response)
+        def assertResponses(self, request, expected_responses, *, remove_time=True):
+            """Makes a request and asserts the responses are the expected one."""
+            responses = self.request(request)
+            if remove_time:
+                for response in responses:
+                    for trace_item in response.trace:
+                        trace_item.times.clear()
+            self.assertEqual(responses, expected_responses)
+        assertResponse = assertResponses # Alias for old code
+
         @arg_to_dict
-        def assertResponsesIn(self, request, expected):
+        def assertResponsesIn(self, request, expected, *, remove_time=True):
             """Makes a request and asserts the response is among a set
             of expected ones."""
             responses = self.request(request)
+            if remove_time:
+                for response in responses:
+                    for trace_item in response.trace:
+                        trace_item.times.clear()
             self.assertTrue(all(x in expected for x in responses),
                             'Not all of:\n%r\n are in:\n%r' % (responses, expected))
+
         @arg_to_dict
         def assertResponsesCount(self, request, count):
             """Makes a request and asserts the number of responses is
             a given number."""
             self.assertEqual(len(self.request(request)), count)
+
         @arg_to_dict
         def assertStatusInt(self, obj, status):
             """Makes a request and asserts the HTTP status code is
             the one that is expected."""
             res = self.app.post_json('/', obj, status='*')
             self.assertEqual(res.status_int, status)
+
     return _PPPTestCase
 

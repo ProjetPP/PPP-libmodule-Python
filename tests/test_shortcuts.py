@@ -1,3 +1,6 @@
+import sys
+import time
+
 from ppp_libmodule.tests import PPPTestCase
 from ppp_libmodule.http import HttpRequestHandler
 from ppp_libmodule import shortcuts
@@ -46,3 +49,33 @@ class HttpTest(PPPTestCase(app)):
         self.assertResponse(q, [Response('en', R('bar'), {},
             [TraceItem('test', R('bar'), {})])])
 
+    def _get_test_times_trace_item(self):
+        t = T(M(), M(), M())
+        q = {'id': '1', 'language': 'en', 'tree': t.as_dict(),
+              'measures': {}, 'trace': []}
+        responses = self.request(q)
+        self.assertEqual(len(responses), 1, responses)
+        response = responses[0]
+        self.assertEqual(len(response.trace), 1, response.trace)
+        return response.trace[0]
+
+    if sys.version_info >= (3, 3):
+        def testTimes(self):
+            trace_item = self._get_test_times_trace_item()
+
+            self.assertEqual(set(trace_item.times), {'start', 'end', 'cpu'})
+
+            self.assertGreater(trace_item.times['cpu'], 0.)
+            # The following may fail on a very slow system.
+            self.assertLess(trace_item.times['cpu'], 1.)
+            self.assertAlmostEqual(trace_item.times['start'], time.time(), delta=1.)
+            self.assertAlmostEqual(trace_item.times['end'], time.time(), delta=1.)
+    else:
+        def testTimes(self):
+            trace_item = self._get_test_times_trace_item()
+
+            self.assertEqual(set(trace_item.times), {'start', 'end'})
+
+            # The following may fail on a very slow system.
+            self.assertAlmostEqual(trace_item.times['start'], time.time(), delta=1.)
+            self.assertAlmostEqual(trace_item.times['end'], time.time(), delta=1.)

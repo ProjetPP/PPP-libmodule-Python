@@ -24,7 +24,7 @@ setup(
         'Topic :: Software Development :: Libraries',
     ],
     install_requires=[
-        'ppp_datamodel>=0.6,<0.7',
+        'ppp_datamodel>=0.6.10,<0.7',
     ],
     packages=[
         'ppp_libmodule',
