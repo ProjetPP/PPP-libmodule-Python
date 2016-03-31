@@ -1,6 +1,7 @@
 """Handles the HTTP frontend (ie. answers to requests from a
 UI."""
 
+import time
 import json
 import logging
 
@@ -73,6 +74,26 @@ class HttpRequestHandler:
                                   'Internal server error. Sorry :/'
                                  )
 
+    def _get_times(self):
+        wall_time = time.time()
+        get_process_time = getattr(time, 'process_time', None)
+        if get_process_time: # Python ≥ 3.3 only
+            process_time = get_process_time()
+        else:
+            process_time = None
+        return (wall_time, process_time)
+
+    def _add_times_to_answers(self, answers, start_wall_time, start_process_time):
+        (end_wall_time, end_process_time) = self._get_times()
+        times_dict = {'start': start_wall_time, 'end': end_wall_time}
+        if start_wall_time and end_process_time:
+            times_dict['cpu'] = end_process_time - start_process_time
+        for answer in answers:
+            if not answer.trace:
+                continue
+            if answer.trace[0].times == {}:
+                answer.trace[0].times.update(times_dict)
+
     def process_request(self, request):
         """Processes a request."""
         try:
@@ -83,7 +104,11 @@ class HttpRequestHandler:
             raise ClientError('Missing mandatory field in request object.')
         except AttributeNotProvided as exc:
             raise ClientError('Attribute not provided: %s.' % exc.args[0])
+
+        (start_wall_time, start_process_time) = self._get_times()
         answers = self.router_class(request).answer()
+        self._add_times_to_answers(answers, start_wall_time, start_process_time)
+
         answers = [x.as_dict() for x in answers]
         return self.make_response('200 OK',
                                   'application/json',
